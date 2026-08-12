@@ -105,8 +105,11 @@ def remove_background(data: bytes) -> bytes:
         raise ImageError(detail)
 
     out = Image.open(io.BytesIO(response.content)).convert("RGBA")
+    # Composite onto a solid white background instead of keeping transparency.
+    canvas = Image.new("RGB", out.size, (255, 255, 255))
+    canvas.paste(out, mask=out.split()[-1])
     buf = io.BytesIO()
-    out.save(buf, format="PNG", optimize=True)
+    canvas.save(buf, format="PNG", optimize=True)
     return buf.getvalue()
 
 # ---- Compression ------------------------------------------------------------
