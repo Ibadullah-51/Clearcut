@@ -61,48 +61,53 @@ def _flatten_to_rgb(img: Image.Image, bg=(255, 255, 255)) -> Image.Image:
 
 
 # ---- Background removal -----------------------------------------------------
-# rembg loads a ~170 MB model the first time it runs, so we build the session
-# once and reuse it. It's imported lazily so the rest of the app (and the two
-# Pillow tools) still work even if rembg isn't installed yet.
-_rembg_session = None
+# Uses the remove.bg API instead of a locally-loaded ML model. Running rembg's
+# u2net/u2netp model in-process needs more RAM than a free-tier host usually
+# has (it was getting OOM-killed on Render's 512 MB plan). Offloading the
+# actual model inference to remove.bg's servers means our server only ever
+# holds one small image in memory at a time.
+import os
 
+import requests
 
-def _get_rembg_session():
-    global _rembg_session
-    if _rembg_session is None:
-        try:
-            from rembg import new_session
-        except ImportError:
-            raise ImageError(
-                "Background removal isn't available on this server yet. "
-                "Run: pip install rembg onnxruntime"
-            )
-        _rembg_session = new_session("u2netp")
-    return _rembg_session
+REMOVEBG_API_URL = "https://api.remove.bg/v1.0/removebg"
 
 
 def remove_background(data: bytes) -> bytes:
     """Return a PNG (with transparency) that has the background removed."""
     _open_image(data)  # validate input first
-    try:
-        from rembg import remove
-    except ImportError:
-        raise ImageError(
-            "Background removal isn't available on this server yet. "
-            "Run: pip install rembg onnxruntime"
-        )
-    session = _get_rembg_session()
-    try:
-        result = remove(data, session=session)
-    except Exception:
-        raise ImageError("Something went wrong removing the background.")
 
-    # rembg returns PNG bytes already, but we re-save to guarantee format.
-    out = Image.open(io.BytesIO(result)).convert("RGBA")
+    api_key = os.environ.get("REMOVEBG_API_KEY")
+    if not api_key:
+        raise ImageError(
+            "Background removal isn't configured on this server yet. "
+            "Set the REMOVEBG_API_KEY environment variable."
+        )
+
+    try:
+        response = requests.post(
+            REMOVEBG_API_URL,
+            files={"image_file": ("image.png", data)},
+            data={"size": "auto"},
+            headers={"X-Api-Key": api_key},
+            timeout=30,
+        )
+    except requests.RequestException:
+        raise ImageError("Couldn't reach the background removal service. Please try again.")
+
+    if response.status_code != 200:
+        try:
+            detail = response.json()["errors"][0]["title"]
+        except Exception:
+            detail = "Background removal failed."
+        if response.status_code == 402:
+            detail = "Background removal quota reached for this month."
+        raise ImageError(detail)
+
+    out = Image.open(io.BytesIO(response.content)).convert("RGBA")
     buf = io.BytesIO()
     out.save(buf, format="PNG", optimize=True)
     return buf.getvalue()
-
 
 # ---- Compression ------------------------------------------------------------
 def compress_image(data: bytes, quality: int) -> tuple[bytes, str]:
