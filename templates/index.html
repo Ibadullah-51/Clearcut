@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="hero">
+  <div class="container hero__inner">
+    <div>
+      <p class="eyebrow">Free · No signup · No watermark</p>
+      <h1>Fix your images in <em>seconds</em>, not software.</h1>
+      <p class="hero__sub">Remove backgrounds, compress, resize, and convert — right in your browser tab.</p>
+      <div class="hero__cta">
+        <a class="btn btn--primary" href="{{ url_for('main.background_remover') }}">Remove a background</a>
+        <a class="btn btn--ghost" href="#tools">See all tools</a>
+      </div>
+    </div>
+    <div class="hero__visual" aria-hidden="true">
+      <div class="hero__blob"></div>
+      <span class="hero__chip">background: removed</span>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="tools">
+  <div class="container">
+    <div class="section__head">
+      <h2>Three tools that just work</h2>
+      <p>Pick one, drop in an image, download the result. That's it.</p>
+    </div>
+    <div class="tool-grid">
+      {% for tool in tools %}
+      <a class="tool-card" href="{{ tool.url }}">
+        <span class="tool-card__icon">
+          {% if tool.icon == 'scissors' %}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>
+          {% elif tool.icon == 'minimize' %}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+          {% else %}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
+          {% endif %}
+        </span>
+        <h3>{{ tool.name }}</h3>
+        <p class="tool-card__tagline">{{ tool.tagline }}</p>
+        <p class="tool-card__detail">{{ tool.detail }}</p>
+        <p class="tool-card__tag">{{ tool.tag }}</p>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="trust">
+  <div class="container trust__grid">
+    <div class="trust__item">
+      <h3>Nothing is stored</h3>
+      <p>Your image is processed the moment you upload it and sent straight back. We don't keep a copy.</p>
+    </div>
+    <div class="trust__item">
+      <h3>No account needed</h3>
+      <p>No signup, no email, no watermark on your results. Open a tool and go.</p>
+    </div>
+    <div class="trust__item">
+      <h3>Works on your phone</h3>
+      <p>Every tool is built to work just as well on a phone as on a laptop.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section__head">
+      <h2>New here? Start with a guide</h2>
+      <p>Short, plain-English walkthroughs for each tool.</p>
+    </div>
+    <div class="post-list">
+      {% for post in posts %}
+      <a class="post-card" href="{{ url_for('main.blog_post', slug=post.slug) }}">
+        <span class="post-card__index">{{ '%02d' % loop.index }}</span>
+        <div>
+          <h2>{{ post.title }}</h2>
+          <p>{{ post.excerpt }}</p>
+          <div class="post-card__meta"><span>{{ post.tool }}</span><span>{{ post.read_time }}</span></div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

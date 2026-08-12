@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="errorpage">
+  <div class="container">
+    <p class="code mono">{{ code }}</p>
+    <h1>{{ message }}</h1>
+    <p>Let's get you back on track.</p>
+    <a class="btn btn--primary" href="{{ url_for('main.home') }}">Back to home</a>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  {# ---- SEO: title + description set per page, with sensible defaults ---- #}
+  <title>{% block title %}{{ page_title|default(BRAND_NAME) }}{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}{{ meta_description|default(BRAND_TAGLINE) }}{% endblock %}">
+
+  {# Open Graph tags help links look good when shared #}
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="{{ page_title|default(BRAND_NAME) }}">
+  <meta property="og:description" content="{{ meta_description|default(BRAND_TAGLINE) }}">
+  <meta property="og:site_name" content="{{ BRAND_NAME }}">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="icon" href="{{ url_for('static', filename='img/favicon.svg') }}" type="image/svg+xml">
+
+  {# Fonts: Space Grotesk (display), Inter (body), JetBrains Mono (data) #}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block head_extra %}{% endblock %}
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="nav">
+    <div class="nav__inner container">
+      <a class="brand" href="{{ url_for('main.home') }}">
+        <span class="brand__mark" aria-hidden="true"></span>
+        <span class="brand__name">{{ BRAND_NAME }}</span>
+      </a>
+
+      <button class="nav__toggle" aria-label="Menu" aria-expanded="false" aria-controls="nav-links">
+        <span></span><span></span><span></span>
+      </button>
+
+      <nav id="nav-links" class="nav__links" aria-label="Main">
+        <a href="{{ url_for('main.background_remover') }}">Background Remover</a>
+        <a href="{{ url_for('main.image_compressor') }}">Compressor</a>
+        <a href="{{ url_for('main.image_resizer') }}">Resizer</a>
+        <a href="{{ url_for('main.blog') }}">Blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__inner">
+      <div>
+        <span class="brand__name">{{ BRAND_NAME }}</span>
+        <p class="footer__tag">{{ BRAND_TAGLINE }}</p>
+      </div>
+      <nav class="footer__links" aria-label="Footer">
+        <a href="{{ url_for('main.background_remover') }}">Background Remover</a>
+        <a href="{{ url_for('main.image_compressor') }}">Compressor</a>
+        <a href="{{ url_for('main.image_resizer') }}">Resizer</a>
+        <a href="{{ url_for('main.blog') }}">Blog</a>
+      </nav>
+    </div>
+    <div class="container footer__legal">
+      <span>© <span id="year"></span> {{ BRAND_NAME }}</span>
+      <span>Your images are processed on the fly and never stored.</span>
+    </div>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

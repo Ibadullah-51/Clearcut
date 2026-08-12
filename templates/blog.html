@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="blog-hero">
+  <div class="container">
+    <h1>Guides &amp; tutorials</h1>
+    <p>Plain-English walkthroughs for each tool — what it does, how to use it, and when you'd reach for it.</p>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <div class="post-list">
+      {% for post in posts %}
+      <a class="post-card" href="{{ url_for('main.blog_post', slug=post.slug) }}">
+        <span class="post-card__index">{{ '%02d' % loop.index }}</span>
+        <div>
+          <h2>{{ post.title }}</h2>
+          <p>{{ post.excerpt }}</p>
+          <div class="post-card__meta"><span>{{ post.tool }}</span><span>{{ post.read_time }}</span></div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

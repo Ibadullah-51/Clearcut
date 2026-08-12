@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% import "_tool_macros.html" as ui with context %}
+
+{% block content %}
+<section class="tool">
+  <div class="container">
+    <div class="tool__head">
+      <h1>Image Compressor</h1>
+      <p>Shrink your image's file size while keeping it sharp. Drag the slider, then compare the before-and-after size.</p>
+    </div>
+
+    <div class="workspace" data-tool>
+      {{ ui.overlay("Compressing…") }}
+      <div class="workspace__body">
+        {{ ui.dropzone() }}
+
+        <div class="controls" data-controls hidden>
+          <div class="field">
+            <label for="quality">Quality</label>
+            <div class="slider-row">
+              <input type="range" id="quality" min="10" max="100" step="5" value="75">
+              <span class="slider-val" id="qualityVal">75%</span>
+            </div>
+            <span class="field__hint">Lower quality = smaller file. Around 75% is a good starting point.</span>
+            <div class="chips" style="margin-top:8px" role="group" aria-label="Quality presets">
+              <button type="button" class="chip" data-preset="40">Small · 40%</button>
+              <button type="button" class="chip is-active" data-preset="75">Balanced · 75%</button>
+              <button type="button" class="chip" data-preset="90">High · 90%</button>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn btn--primary" data-run>Compress image</button>
+          </div>
+        </div>
+
+        <div class="msg"></div>
+        {{ ui.result("Original", "Compressed") }}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/tools.js') }}"></script>
+<script>
+  var slider = document.getElementById("quality");
+  var sliderVal = document.getElementById("qualityVal");
+  var presets = document.querySelectorAll("[data-preset]");
+
+  slider.addEventListener("input", function () {
+    sliderVal.textContent = slider.value + "%";
+    presets.forEach(function (p) {
+      p.classList.toggle("is-active", p.dataset.preset === slider.value);
+    });
+  });
+  presets.forEach(function (p) {
+    p.addEventListener("click", function () {
+      slider.value = p.dataset.preset;
+      slider.dispatchEvent(new Event("input"));
+    });
+  });
+
+  Clearcut.setupTool({
+    endpoint: "{{ url_for('tools.api_compress') }}",
+    maxMB: {{ MAX_UPLOAD_MB }},
+    downloadName: "clearcut-compressed",
+    buildFormData: function (file) {
+      var fd = new FormData();
+      fd.append("image", file);
+      fd.append("quality", slider.value);
+      return fd;
+    },
+  });
+</script>
+{% endblock %}

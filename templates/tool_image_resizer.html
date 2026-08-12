@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% import "_tool_macros.html" as ui with context %}
+
+{% block content %}
+<section class="tool">
+  <div class="container">
+    <div class="tool__head">
+      <h1>Image Resizer &amp; Converter</h1>
+      <p>Set an exact size or pick a preset, and save as JPG, PNG, or WebP — all in one step.</p>
+    </div>
+
+    <div class="workspace" data-tool>
+      {{ ui.overlay("Resizing…") }}
+      <div class="workspace__body">
+        {{ ui.dropzone() }}
+
+        <div class="controls" data-controls hidden>
+          <div class="field">
+            <label>Presets</label>
+            <div class="chips" role="group" aria-label="Size presets">
+              <button type="button" class="chip" data-size="1920x1080">1920×1080</button>
+              <button type="button" class="chip" data-size="1080x1080">1080×1080</button>
+              <button type="button" class="chip" data-size="1200x630">1200×630</button>
+              <button type="button" class="chip" data-size="800x800">800×800</button>
+              <button type="button" class="chip" data-size="512x512">512×512</button>
+            </div>
+          </div>
+
+          <div class="control-row">
+            <div class="field">
+              <label for="width">Width (px)</label>
+              <input type="number" id="width" min="1" max="10000" placeholder="auto">
+            </div>
+            <div class="field">
+              <label for="height">Height (px)</label>
+              <input type="number" id="height" min="1" max="10000" placeholder="auto">
+            </div>
+            <div class="field">
+              <label for="format">Output format</label>
+              <select id="format">
+                <option value="png">PNG</option>
+                <option value="jpg">JPG</option>
+                <option value="webp">WebP</option>
+              </select>
+            </div>
+          </div>
+
+          <label class="checkbox">
+            <input type="checkbox" id="keepAspect" checked>
+            <span>Lock aspect ratio (don't stretch the image)</span>
+          </label>
+
+          <div class="actions">
+            <button class="btn btn--primary" data-run>Resize image</button>
+          </div>
+        </div>
+
+        <div class="msg"></div>
+        {{ ui.result("Original", "Resized") }}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/tools.js') }}"></script>
+<script>
+  var widthEl = document.getElementById("width");
+  var heightEl = document.getElementById("height");
+  var formatEl = document.getElementById("format");
+  var keepAspectEl = document.getElementById("keepAspect");
+  var sizeChips = document.querySelectorAll("[data-size]");
+
+  sizeChips.forEach(function (chip) {
+    chip.addEventListener("click", function () {
+      var parts = chip.dataset.size.split("x");
+      widthEl.value = parts[0];
+      heightEl.value = parts[1];
+      sizeChips.forEach(function (c) { c.classList.remove("is-active"); });
+      chip.classList.add("is-active");
+    });
+  });
+  // typing a custom size clears the active preset
+  [widthEl, heightEl].forEach(function (el) {
+    el.addEventListener("input", function () {
+      sizeChips.forEach(function (c) { c.classList.remove("is-active"); });
+    });
+  });
+
+  Clearcut.setupTool({
+    endpoint: "{{ url_for('tools.api_resize') }}",
+    maxMB: {{ MAX_UPLOAD_MB }},
+    downloadName: "clearcut-resized",
+    buildFormData: function (file) {
+      var fd = new FormData();
+      fd.append("image", file);
+      fd.append("width", widthEl.value);
+      fd.append("height", heightEl.value);
+      fd.append("format", formatEl.value);
+      fd.append("keep_aspect", keepAspectEl.checked ? "true" : "false");
+      return fd;
+    },
+  });
+</script>
+{% endblock %}

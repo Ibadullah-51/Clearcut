@@ -1,0 +1,41 @@
+{# Shared building blocks for the tool workspaces, kept in one place so the
+   three tool pages stay short and consistent. #}
+
+{% macro dropzone() %}
+<div class="dropzone" role="button" tabindex="0" aria-label="Upload an image">
+  <svg class="dropzone__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+  </svg>
+  <strong data-dz-text>Drop an image here, or click to browse</strong>
+  <span>JPG, PNG, or WebP</span>
+  <span class="mono">Max {{ MAX_UPLOAD_MB }} MB · processed instantly, never stored</span>
+  <input type="file" accept="image/png,image/jpeg,image/webp">
+</div>
+{% endmacro %}
+
+{% macro result(original_label, result_label) %}
+<div class="result" data-result hidden>
+  <div class="compare">
+    <div class="pane">
+      <span class="pane__label">{{ original_label }}</span>
+      <div class="pane__stage"><img data-original-img alt="Original image"></div>
+      <span class="pane__meta" data-original-meta></span>
+    </div>
+    <div class="pane">
+      <span class="pane__label">{{ result_label }}</span>
+      <div class="pane__stage"><img data-result-img alt="Processed result"></div>
+      <span class="pane__meta" data-result-meta></span>
+    </div>
+  </div>
+  <div class="result__download">
+    <a class="btn btn--primary btn--block" data-download download>Download result</a>
+  </div>
+</div>
+{% endmacro %}
+
+{% macro overlay(text) %}
+<div class="overlay" aria-live="polite">
+  <div class="spinner" role="status" aria-label="Processing"></div>
+  <p>{{ text }}</p>
+</div>
+{% endmacro %}

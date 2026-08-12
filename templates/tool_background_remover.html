@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% import "_tool_macros.html" as ui with context %}
+
+{% block content %}
+<section class="tool">
+  <div class="container">
+    <div class="tool__head">
+      <h1>Background Remover</h1>
+      <p>Upload a photo and get a clean, transparent PNG back. Great for products, portraits, and logos.</p>
+    </div>
+
+    <div class="workspace" data-tool>
+      {{ ui.overlay("Removing the background…") }}
+      <div class="workspace__body">
+        {{ ui.dropzone() }}
+
+        {# No extra controls for this tool — reveal the run button once a file is chosen #}
+        <div class="controls" data-controls hidden>
+          <div class="actions">
+            <button class="btn btn--primary" data-run>Remove background</button>
+          </div>
+        </div>
+
+        <div class="msg"></div>
+        {{ ui.result("Original", "Background removed") }}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/tools.js') }}"></script>
+<script>
+  Clearcut.setupTool({
+    endpoint: "{{ url_for('tools.api_remove_background') }}",
+    maxMB: {{ MAX_UPLOAD_MB }},
+    downloadName: "clearcut-no-background",
+    buildFormData: function (file) {
+      var fd = new FormData();
+      fd.append("image", file);
+      return fd;
+    },
+  });
+</script>
+{% endblock %}
