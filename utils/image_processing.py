@@ -77,7 +77,7 @@ def _get_rembg_session():
                 "Background removal isn't available on this server yet. "
                 "Run: pip install rembg onnxruntime"
             )
-        _rembg_session = new_session("u2net")
+        _rembg_session = new_session("u2netp")
     return _rembg_session
 
 
