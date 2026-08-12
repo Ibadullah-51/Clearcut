@@ -1,5 +1,9 @@
 # Clearcut — free image tools
 
+🔗 Live demo: https://clearcut-1.onrender.com/
+
+Hosted on Render's free tier — if the app hasn't been used in a while, the first load may take 30–50 seconds while the server wakes up.
+
 A small Flask website with three image utilities and a blog:
 
 - **Background Remover** (`/background-remover`) — transparent PNG cutouts, powered by `rembg`
